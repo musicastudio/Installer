@@ -1,0 +1,14 @@
+--- a/internal/glfw/nsgl_context_darwin.go
++++ b/internal/glfw/nsgl_context_darwin.go
+@@ -137,6 +137,11 @@
+ 	// Create the pixel format.
+ 	pixelFormat := objc.ID(class_NSOpenGLPixelFormat).Send(sel_alloc).Send(sel_initWithAttributes, unsafe.Pointer(&attribs[0]))
+ 	if pixelFormat == 0 {
++		// No GPU renderer (a virtual machine, a Mac without a supported GPU): drop the first attribute,
++		// NSOpenGLPFAAccelerated, and take Apple's software renderer.
++		pixelFormat = objc.ID(class_NSOpenGLPixelFormat).Send(sel_alloc).Send(sel_initWithAttributes, unsafe.Pointer(&attribs[1]))
++	}
++	if pixelFormat == 0 {
+ 		return fmt.Errorf("glfw: NSGL: failed to find a suitable pixel format: %w", FormatUnavailable)
+ 	}
+ 

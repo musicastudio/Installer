@@ -1,0 +1,8 @@
+# Both editions of the font stay out of the repo (FSVR rasterizes a few glyphs of the free one); build.sh subsets and scrambles it into payload/font.bin.
+Analog Whispers.ttf
+Analog Whispers FREE.ttf
+payload/font.bin
+payload/payload.zip
+dist/
+.cache/
+rsrc_windows_*.syso

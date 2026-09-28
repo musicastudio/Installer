@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FSVR installer. The engine draws the steps in order.
+
+  step types: box (the spinning box), licence (scrolls "file"), components, folders, options,
+  progress, finish (box="true" shows the box again). The text inside a step is its intro line.
+  <uninstall> holds the steps for removing it again, reached from Settings > Apps on Windows, or
+  from "uninstall." beside the box when it is already installed. Over an existing install the box's
+  button reads "reinstall." or "update." instead of its own label.
+
+  component: one tile on the components step. A target says where it goes on one OS: "from" is a
+  file or folder inside the payload zip (the layout of FSVR's bin/ folder), "to" is
+  the folder it lands in. "to" expands ${VAR} from the environment and a leading ~ to the home folder.
+  Components with no target for this OS, or missing from the payload, are not shown.
+  register="true" runs regsvr32 on it (Windows). shortcut="Name" adds a Start menu entry (Windows) or
+  an applications menu entry (Linux).
+
+  updates: the manifest the updater reads (see checkUpdate in install.go), never GitHub itself, and
+  the setup it downloads and runs per OS with -silent. musica.studio mirrors them off FSVR's releases.
+-->
+<installer>
+  <product name="FSVR" version="0.5.0" publisher="musica.studio" id="studio.musica.fsvr"
+           map="product/map.png" icon="product/icon.png"/>
+
+  <updates url="https://musica.studio/updates/fsvr/latest.json">
+    <asset os="windows">FSVR-Windows-Installer.exe</asset>
+    <asset os="darwin">FSVR-MacOS-Update</asset>
+    <asset os="linux">FSVR-Linux-Installer</asset>
+  </updates>
+
+  <step type="box" button="install."/>
+  <step type="licence" title="licence." button="next." file="product/LICENSE">
+    FSVR is free software under the GNU General Public License v3. Use it for anything, share it and change it; if you share a changed version, share its source too.
+  </step>
+  <step type="components" title="formats." button="next.">
+    Pick the formats your hosts load.
+  </step>
+  <step type="folders" title="folders." button="next.">
+    These are the folders hosts scan by default.
+  </step>
+  <step type="options" title="options." button="install."/>
+  <step type="progress" title="installing."/>
+  <step type="finish" title="installed." button="close." box="true">
+    Rescan plug-ins in your host to find FSVR.
+  </step>
+
+  <uninstall>
+    <step type="box" button="uninstall."/>
+    <step type="progress" title="removing."/>
+    <step type="finish" title="removed." button="close.">
+      FSVR is gone. Your library in Documents/FSVR is still there.
+    </step>
+  </uninstall>
+
+  <component id="vst3" name="VST3" icon="icons/vst3.png" default="true"
+             about="Steinberg's current format. Most hosts on Windows and macOS load it.">
+    <target os="windows" from="VST3/FSVR.vst3" to="${CommonProgramFiles}\VST3"/>
+    <target os="darwin" from="VST3/FSVR.vst3" to="~/Library/Audio/Plug-Ins/VST3"/>
+    <target os="linux" from="VST3/FSVR.vst3" to="~/.vst3"/>
+  </component>
+
+  <component id="clap" name="CLAP" icon="icons/clap.png" default="true"
+             about="The open format from Bitwig and u-he. Bitwig Studio, Reaper and others load it.">
+    <target os="windows" from="CLAP/FSVR.clap" to="${CommonProgramFiles}\CLAP"/>
+    <target os="darwin" from="CLAP/FSVR.clap" to="~/Library/Audio/Plug-Ins/CLAP"/>
+    <target os="linux" from="CLAP/FSVR.clap" to="~/.clap"/>
+  </component>
+
+  <component id="au" name="AU" icon="icons/au.png" default="true"
+             about="Apple's Audio Unit. Logic Pro and GarageBand load only this one.">
+    <target os="darwin" from="AU/FSVR.component" to="~/Library/Audio/Plug-Ins/Components"/>
+  </component>
+
+  <component id="vst2" name="VST2" icon="icons/vst2.png" default="true"
+             about="The older VST format, for hosts that never moved to VST3.">
+    <target os="windows" from="VST2/FSVR.dll" to="${ProgramFiles}\VSTPlugins"/>
+    <target os="darwin" from="VST2/FSVR.vst" to="~/Library/Audio/Plug-Ins/VST"/>
+    <target os="linux" from="VST2/FSVR.so" to="~/.vst"/>
+  </component>
+
+  <component id="vst2-32" name="VST2 32-bit" icon="icons/vst2-32.png" default="true"
+             about="A 32-bit VST2 with a DXi inside, for 32-bit hosts and Cakewalk's older DXi support.">
+    <target os="windows" from="VST2 32-bit and DXi/FSVR.dll" to="${ProgramFiles(x86)}\VSTPlugins" register="true"/>
+  </component>
+
+  <component id="standalone" name="standalone" icon="icons/standalone.png" default="true"
+             about="FSVR as its own app, with its own audio and MIDI settings. No host needed.">
+    <target os="windows" from="Standalone/FSVR.exe" to="${ProgramFiles}\musica.studio\FSVR" shortcut="FSVR"/>
+    <target os="darwin" from="Standalone/FSVR.app" to="/Applications"/>
+    <target os="linux" from="Standalone/FSVR" to="~/.local/bin" shortcut="FSVR"/>
+  </component>
+
+  <option id="updater" name="updater" icon="icons/updater.png" default="true" note="recommended">
+    Checks musica.studio at each login and quietly installs new releases.
+  </option>
+</installer>
