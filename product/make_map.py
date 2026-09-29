@@ -110,9 +110,8 @@ def main():
     main_shot = shot('page_library', BW - 80)
     framed(m, main_shot, fx + 40, fy + 196)
     y = fy + 196 + main_shot.height + 34
-    for line in ('The Yamaha FS1R, rebuilt from', 'its own firmware.'):
-        centre(d, line, font(38), fx + BW // 2, y, DARK)
-        y += 46
+    centre(d, 'The Yamaha FS1R, rebuilt.', font(38), fx + BW // 2, y + 20, DARK)
+    y += 92
     formats = ['vst3', 'clap', 'au', 'vst2', 'standalone']
     names = ['VST3', 'CLAP', 'AU', 'VST2', 'standalone']
     gap = (BW - 80) // len(formats)
