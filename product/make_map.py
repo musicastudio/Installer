@@ -110,7 +110,7 @@ def main():
     main_shot = shot('page_library', BW - 80)
     framed(m, main_shot, fx + 40, fy + 196)
     y = fy + 196 + main_shot.height + 34
-    centre(d, 'The Yamaha FS1R, rebuilt.', font(38), fx + BW // 2, y + 20, DARK)
+    centre(d, 'A millennial FM monster, reborn.', font(38), fx + BW // 2, y + 20, DARK)
     y += 92
     formats = ['vst3', 'clap', 'au', 'vst2', 'standalone']
     names = ['VST3', 'CLAP', 'AU', 'VST2', 'standalone']
