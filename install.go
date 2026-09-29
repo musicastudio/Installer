@@ -243,6 +243,9 @@ func uninstall(p *progress) error {
 			}
 			if it.t.Shortcut != "" {
 				os.Remove(shortcutFile(it.t.Shortcut))
+				if runtime.GOOS == "linux" {
+					os.Remove(iconFile())
+				}
 			}
 		}
 		if err := os.RemoveAll(it.path); err != nil {
@@ -391,10 +394,23 @@ func shortcut(name, target string) error {
 		return run("powershell", "-NoProfile", "-NonInteractive", "-Command",
 			"$s = (New-Object -ComObject WScript.Shell).CreateShortcut("+q(file)+"); $s.TargetPath = "+q(target)+"; $s.Save()")
 	case "linux":
-		entry := fmt.Sprintf("[Desktop Entry]\nType=Application\nName=%s\nExec=\"%s\"\nTerminal=false\n", name, target)
+		icon, err := assets.ReadFile(man.Product.Icon) // the product's own icon
+		if err == nil {
+			err = writeFile(iconFile(), icon, 0o644)
+		}
+		if err != nil {
+			return err
+		}
+		entry := fmt.Sprintf("[Desktop Entry]\nType=Application\nName=%s\nExec=\"%s\"\nIcon=%s\nTerminal=false\n", name, target, man.Product.ID)
 		return writeFile(file, []byte(entry), 0o644)
 	}
 	return nil
+}
+
+// iconFile is where a Linux menu entry's icon goes: the user's icon theme, under the product id.
+func iconFile() string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".local", "share", "icons", "hicolor", "512x512", "apps", man.Product.ID+".png")
 }
 
 // setupPath is the copy of the setup kept in the install folder, which the updater and uninstall run.
