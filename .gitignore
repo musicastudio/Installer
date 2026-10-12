@@ -3,6 +3,7 @@ Analog Whispers.ttf
 Analog Whispers FREE.ttf
 payload/font.bin
 payload/payload.zip
+payload/payload.zip.xz
 dist/
 .cache/
 rsrc_windows_*.syso

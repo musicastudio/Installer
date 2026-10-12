@@ -29,7 +29,7 @@ BIN_WINDOWS=${BIN_WINDOWS:-../FSVR/bin}
 out=dist
 cache=.cache # the font venv and the patched Ebitengine, kept between builds
 rm -rf "$out" && mkdir -p "$out" "$cache"
-trap 'rm -f payload/payload.zip rsrc_windows_*.syso' EXIT
+trap 'rm -f payload/payload.zip payload/payload.zip.xz rsrc_windows_*.syso' EXIT
 echo "$name $version"
 
 font="Analog Whispers.ttf"
@@ -51,7 +51,13 @@ fi
 
 go test .
 
-stage() { go run . -pack "$1" "$2" payload/payload.zip; } # stage <goos> <bin folder>
+# stage <goos> <bin folder>: the OS's files as a stored zip, then xz over the whole of it. The dictionary
+# has to reach from one format's binary to the next (75 MB each for FSVR's universal Mac plug-ins).
+stage() {
+  rm -f payload/payload.zip.xz
+  go run . -pack "$1" "$2" payload/payload.zip
+  xz -9e -T1 --lzma2=preset=9e,dict=128MiB payload/payload.zip
+}
 
 if [ -d "$BIN_WINDOWS" ]; then
   echo "windows/amd64"

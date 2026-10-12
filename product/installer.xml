@@ -16,7 +16,8 @@
   an applications menu entry (Linux).
 
   updates: the manifest the updater reads (see checkUpdate in install.go), never GitHub itself, and
-  the setup it downloads and runs per OS with -silent. musica.studio mirrors them off FSVR's releases.
+  the setup it downloads and runs per OS with -silent. musica.studio writes the manifest from FSVR's
+  releases and redirects the setups to them.
 -->
 <installer>
   <product name="FSVR" version="0.5.0" publisher="musica.studio" id="studio.musica.fsvr"

@@ -23,6 +23,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/ulikunitz/xz"
 )
 
 // root, when set, puts every install path under it and registers nothing with the OS (testing).
@@ -83,9 +85,22 @@ func initialState() state {
 	return st
 }
 
+// openPayload unpacks payload.zip.xz: a stored zip under one xz stream, whose long dictionary finds
+// what the formats share (the same engine and skin in every plug-in), where a zip's per-file deflate
+// cannot. FSVR v0.5.2's macOS payload is 314 MB as per-file deflate and 33 MB this way.
 func openPayload() *zip.Reader {
-	b, err := assets.ReadFile("payload/payload.zip")
+	c, err := assets.ReadFile("payload/payload.zip.xz")
 	if err != nil {
+		return nil
+	}
+	x, err := xz.NewReader(bytes.NewReader(c))
+	if err != nil {
+		log.Printf("payload: %v", err)
+		return nil
+	}
+	b, err := io.ReadAll(x) // ponytail: the whole payload in memory, as the embedded zip was; stream it if a payload outgrows RAM
+	if err != nil {
+		log.Printf("payload: %v", err)
 		return nil
 	}
 	z, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
@@ -486,7 +501,8 @@ func setUpdater(on bool) error {
 
 // checkUpdate reads the product's update manifest on musica.studio and, when it names a newer
 // version, downloads this OS's setup from beside it and starts it with -silent. GitHub is never
-// asked: a release there reaches users only once musica.studio's mirror has taken it.
+// asked which version is current: a release there reaches users only once musica.studio's feed names
+// it. The setup itself is redirected to the GitHub release asset, so GitHub counts the download.
 //
 // The manifest (updates url) is {"version": "0.5.0", "sha256": {"FSVR-Windows-Installer.exe": "…"}},
 // and the file is <folder of the manifest>/<version>/<asset name>. A file with no hash is refused.
@@ -622,7 +638,7 @@ func pack(goos, from, out string) error {
 					return err
 				}
 				rel, _ := filepath.Rel(from, p)
-				h.Name, h.Method = filepath.ToSlash(rel), zip.Deflate
+				h.Name, h.Method = filepath.ToSlash(rel), zip.Store // build.sh compresses the whole zip at once
 				w, err := z.CreateHeader(h)
 				if err != nil {
 					return err

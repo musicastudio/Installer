@@ -4,6 +4,7 @@ go 1.27.1
 
 require (
 	github.com/hajimehoshi/ebiten/v2 v2.10.4
+	github.com/ulikunitz/xz v0.5.12
 	golang.org/x/image v0.45.0
 	golang.org/x/sys v0.47.0
 )
