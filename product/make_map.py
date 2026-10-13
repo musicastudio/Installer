@@ -5,9 +5,10 @@
 #   [L ][ front ][R ][ back ]
 #         [bottom]
 #
-# The front carries the wordmark and the editor, the back the description and four more pages,
-# both spines the wordmark. The screenshots are rendered from FSVR's skin by Hollow's hollow-render
-# (built by FSVR's `build.bat plugin`), so they follow the skin; the wordmark is fsvr_wordmark.svg,
+# The front carries the wordmark and the README's screenshot (FSVR's docs/fsvr_standalone.png), the
+# back the description and four more pages, both spines the wordmark. The back's pages are rendered
+# from FSVR's skin by Hollow's hollow-render (built by FSVR's `build.bat plugin`), so they follow the
+# skin; the wordmark is fsvr_wordmark.svg,
 # rasterized by ImageMagick. Needs Pillow, ImageMagick and the licensed "Analog Whispers.ttf" in the
 # folder above.
 #   python product/make_map.py [path to FSVR]      (default ../FSVR)
@@ -48,7 +49,11 @@ def shot(view, width):
     state, out = os.path.join(TMP, view + '.txt'), os.path.join(TMP, view + '.png')
     open(state, 'w', newline='\n').write('hollow-state 1\nui {"embeds":{"pages":{"view":"%s"}}}\n' % view)
     subprocess.run([render, os.path.join(FSVR, 'plugin', 'skin'), 'main', out, state], check=True)
-    im = Image.open(out).convert('RGB')
+    return scaled(out, width)
+
+
+def scaled(path, width):
+    im = Image.open(path).convert('RGB')
     return im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
 
 
@@ -107,9 +112,9 @@ def main():
     wm = wordmark(600, INK)
     m.alpha_composite(wm, (fx + (BW - wm.width) // 2, fy + 40))
     centre(d, 'Formant Synthesizer Virtual Rack', font(38), fx + BW // 2, fy + 64 + wm.height, INK)
-    main_shot = shot('page_library', BW - 80)
-    framed(m, main_shot, fx + 40, fy + 196)
-    y = fy + 196 + main_shot.height + 34
+    main_shot = scaled(os.path.join(FSVR, 'docs', 'fsvr_standalone.png'), BW - 80)
+    framed(m, main_shot, fx + 40, fy + 204)
+    y = fy + 204 + main_shot.height + 34
     centre(d, 'A millennial FM monster, reborn.', font(38), fx + BW // 2, y + 20, DARK)
     y += 92
     formats = ['vst3', 'clap', 'au', 'vst2', 'standalone']
