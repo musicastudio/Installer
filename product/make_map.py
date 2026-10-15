@@ -136,8 +136,8 @@ def main():
     m.alpha_composite(wm, (bx + 40, by + 44))
     f = font(25)
     text = ('FSVR is the Yamaha FS1R as a plug-in and a standalone. Its control logic is the unit\'s own '
-            'firmware, rewritten in C++ from the decompiled v1.20 ROM, and its two custom chips are modelled '
-            'and calibrated against recordings of a real FS1R.')
+            'firmware, rewritten in C++ from the decompiled v1.20 ROM, its tone generator is calibrated against '
+            'a real FS1R, and its effects and filter run the firmware\'s own DSP code.')
     y = by + 60 + wm.height
     for line in wrap(text, f, BW - 80):
         d.text((bx + 40, y), line, font=f, fill=DARK)
